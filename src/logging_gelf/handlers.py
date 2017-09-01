@@ -8,6 +8,7 @@
 """
 import socket
 import ssl
+import json
 from logging.handlers import SocketHandler, DatagramHandler
 
 
@@ -44,3 +45,15 @@ class GELFTCPSocketHandler(SocketHandler):
 class GELFUDPSocketHandler(DatagramHandler):
     def makePickle(self, record):
         return bytes(self.format(record) + "\n", "UTF-8")
+
+
+class GELFJSONUDPSocketHandler(GELFUDPSocketHandler):
+    def makePickle(self, record):
+        data = json.dumps({"message": self.format(record)}) + "\0"
+        return bytes(data, "UTF-8")
+
+
+class GELFJSONTCPSocketHandler(GELFTCPSocketHandler):
+    def makePickle(self, record):
+        data = json.dumps({"message": self.format(record)}) + "\0"
+        return bytes(data, "UTF-8")
